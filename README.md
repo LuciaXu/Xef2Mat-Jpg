@@ -1,6 +1,14 @@
 # Xef2Mat-Jpg
 A wpf based programme that can convert kinect xef files into mat (for depth and ir), and jpg images (for color stream)
 
+## How to Use:
+1. Download the repository.
+2. Go to "Xef2Mat&JPG/bin"
+3. Run the exe file
+4. Select the file format before choose the XEF file.
+5. Wait for complete.
+6. Find the files under "Xef2Mat&JPG/bin/Xef2Mat_Output"
+
 /***********************************************************************************************
  * The Orginal Version: Convert XEF to Mat (depth & IR)
  * Author:  Ray Litchi

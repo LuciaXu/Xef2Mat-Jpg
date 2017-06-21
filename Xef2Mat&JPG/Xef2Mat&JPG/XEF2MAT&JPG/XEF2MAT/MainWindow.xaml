@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XEF2MAT"
         mc:Ignorable="d"
-        Title="Xef2MatJpg Converter" Width="327.874" Loaded="Window_Loaded" ResizeMode="CanMinimize" Height="155.834" Icon="kinect.ico">
+        Title="Xef2MatJpg Converter" Width="469.474" Loaded="Window_Loaded" ResizeMode="CanMinimize" Height="155.834" Icon="kinect.ico">
     <Grid Margin="15,8,5,8">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"></ColumnDefinition>
@@ -22,6 +22,10 @@
         <Button Grid.Column="0" Grid.Row="1" x:Name="button" Content="Select" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="button_Click"/>
         <Label Grid.Column="0" Grid.Row="2" x:Name="label2" Content="Progress:" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         <ProgressBar Grid.Column="0" Grid.Row="3" x:Name="progressBar" Height="10" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ColumnSpan="2" Margin="3,8.2,119.6,9.8"/>
-        <Label Grid.Column="1" Grid.Row="3" x:Name="label3" Content="Standby" HorizontalAlignment="Center"  VerticalAlignment="Center"/>       
+        <Label Grid.Column="1" Grid.Row="3" x:Name="label3" Content="Standby" HorizontalAlignment="Center"  VerticalAlignment="Center" Margin="130.2,1.4,34.2,2.4"/>
+        <CheckBox x:Name="DepthBox" Content="Depth" HorizontalAlignment="Left" Margin="15.8,4.6,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="DepthBox_Checked" Unchecked="DepthBox_Unchecked" Grid.Column="1"/>
+        <CheckBox x:Name="IRBox" Content="IR" Grid.Column="1" HorizontalAlignment="Left" Margin="104.8,3.6,0,0" Grid.Row="1" Checked="IRBox_Checked" Height="16" VerticalAlignment="Top" Unchecked="IRBox_Unchecked"/>
+        <CheckBox x:Name="ColorBox" Content="Color" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Margin="192.8,3.6,0,0" Grid.Row="1" Checked="ColorBox_Checked" Unchecked="ColorBox_Unchecked"/>
+        <Label Content="Check the file formats to extract: " Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="15.8,0,0,0" VerticalAlignment="Top" Width="214"/>
     </Grid>
 </Window>

@@ -74,6 +74,10 @@ namespace XEF2MAT
 
         private BackgroundWorker b;             // Handle the export process in background
 
+        private bool extractDepth = false;
+        private bool extractIR = false;
+        private bool extractColor = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -197,7 +201,7 @@ namespace XEF2MAT
 
             foreach (var item in file.EventStreams)
             {
-                if (item.DataTypeName.Equals("Nui Depth"))
+                if ((item.DataTypeName.Equals("Nui Depth"))&&(extractDepth))
                 {
                     state = "Depth";
 
@@ -205,28 +209,32 @@ namespace XEF2MAT
                     this.frameCount = (int)stream.EventCount;
                     depth_timing = new ushort[frameCount];
 
+                    //unsafe
+                    int size = outputData.Length * sizeof(ushort);
+                    IntPtr ip = Marshal.AllocHGlobal(size);
+
                     for (uint i = 0; i < frameCount; i++)
                     {
                         b.ReportProgress((int)((float)i / frameCount * 100));
 
                         Thread.Sleep(100);
-                        var curr_event = stream.ReadEvent(i);
-                        //unsafe
+                        using(var curr_event = stream.ReadEvent(i))
                         {
-                            int size = outputData.Length * sizeof(ushort);
-                            IntPtr ip = Marshal.AllocHGlobal(size);
+                           
+                            {
+                                uint bufferSize = 0;
+                                curr_event.AccessUnderlyingEventDataBuffer(out bufferSize, out ip);
 
-                            uint bufferSize = 0;
-                            curr_event.AccessUnderlyingEventDataBuffer(out bufferSize, out ip);
-
-                            Copy(ip, outputData, 0, outputData.Length);
+                                Copy(ip, outputData, 0, outputData.Length);
+                            }
+                            this.depth_timing[i] = (ushort)curr_event.RelativeTime.TotalMilliseconds;
+                            string filePath = Environment.CurrentDirectory + "/Xef2Mat_Output/DepthFrame" + i.ToString("D4") + ".mat";
+                            MATWriter.ToMatFile("Dep" + i.ToString("D4"), filePath, outputData, HEIGHT, WIDTH);
                         }
-                        this.depth_timing[i] = (ushort)curr_event.RelativeTime.TotalMilliseconds;
-                        string filePath = Environment.CurrentDirectory + "/Xef2Mat_Output/DepthFrame" + i.ToString("D4") + ".mat";
-                        MATWriter.ToMatFile("Dep" + i.ToString("D4"), filePath, outputData, HEIGHT, WIDTH);
+
                     }
                 }
-                if (item.DataTypeName.Equals("Nui Uncompressed Color"))
+                if ((item.DataTypeName.Equals("Nui Uncompressed Color"))&&(extractColor))
                 {
                     state = "Color";
 
@@ -234,22 +242,25 @@ namespace XEF2MAT
                     this.frameCount = (int)stream.EventCount;
                     color_timing = new ushort[frameCount];
 
+                    //unsafe
+                    //{
+                    int size = colorData.Length * sizeof(byte) * 2;
+                    IntPtr ip = Marshal.AllocHGlobal(size);
+                    //}
+
                     for (uint i = 0; i < frameCount; i++)
                     {
                         b.ReportProgress((int)((float)i / frameCount * 100));
 
                         Thread.Sleep(100);
-                        var curr_event = stream.ReadEvent(i);
-                        //unsafe
+                        using (var curr_event = stream.ReadEvent(i))
                         {
-                            int size = colorData.Length * sizeof(byte) * 2;
-                            IntPtr ip = Marshal.AllocHGlobal(size);
 
                             uint bufferSize = 0;
                             curr_event.AccessUnderlyingEventDataBuffer(out bufferSize, out ip);
 
                             Copy(ip, colorData, 0, colorData.Length);
-                        }
+
 
                         for(int _Index =0; _Index< (COLOR_WIDTH*COLOR_HEIGHT)/2; _Index++)
                         {
@@ -287,9 +298,10 @@ namespace XEF2MAT
 
                         this.color_timing[i] = (ushort)curr_event.RelativeTime.TotalMilliseconds;
                     }
+                    }
                 }
 
-                if (item.DataTypeName.Equals("Nui IR"))
+                if ((item.DataTypeName.Equals("Nui IR"))&&(extractIR))
                 {
                     state = "IR";
 
@@ -297,24 +309,29 @@ namespace XEF2MAT
                     this.frameCount = (int)stream.EventCount;
                     IR_timing = new ushort[frameCount];
 
+                    //unsafe
+                    int size = outputData.Length * sizeof(ushort);
+                    IntPtr ip = Marshal.AllocHGlobal(size);
+
                     for (uint i = 0; i < frameCount; i++)
                     {
                         b.ReportProgress((int)((float)i / frameCount * 100));
 
-                        var curr_event = stream.ReadEvent(i);
-                        //unsafe
+                        using(var curr_event = stream.ReadEvent(i))
                         {
-                            int size = outputData.Length * sizeof(ushort);
-                            IntPtr ip = Marshal.AllocHGlobal(size);
+                            
+                            {
+                                
+                                uint bufferSize = 0;
+                                curr_event.AccessUnderlyingEventDataBuffer(out bufferSize, out ip);
 
-                            uint bufferSize = 0;
-                            curr_event.AccessUnderlyingEventDataBuffer(out bufferSize, out ip);
-
-                            Copy(ip, outputData, 0, outputData.Length);
+                                Copy(ip, outputData, 0, outputData.Length);
+                            }
+                            this.IR_timing[i] = (ushort)curr_event.RelativeTime.TotalMilliseconds;
+                            string filePath = Environment.CurrentDirectory + "/Xef2Mat_Output/IRFrame" + i.ToString("D4") + ".mat";
+                            MATWriter.ToMatFile("IR" + i.ToString("D4"), filePath, outputData, HEIGHT, WIDTH);
                         }
-                        this.IR_timing[i] = (ushort)curr_event.RelativeTime.TotalMilliseconds;
-                        string filePath = Environment.CurrentDirectory + "/Xef2Mat_Output/IRFrame" + i.ToString("D4") + ".mat";
-                        MATWriter.ToMatFile("IR" + i.ToString("D4"), filePath, outputData, HEIGHT, WIDTH);
+
                     }
                 }
             }
@@ -346,5 +363,39 @@ namespace XEF2MAT
 
             }
         }
+
+        private void DepthBox_Checked(object sender, RoutedEventArgs e)
+        {
+           extractDepth = true;
+
+        }
+
+        private void ColorBox_Checked(object sender, RoutedEventArgs e)
+        {
+            extractColor = true;
+
+        }
+
+        private void IRBox_Checked(object sender, RoutedEventArgs e)
+        {
+           extractIR = true;
+        }
+
+        private void DepthBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            extractDepth = false;
+        }
+
+        private void IRBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            extractIR = false;
+        }
+
+        private void ColorBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            extractColor = false;
+        }
+
+
     }
 }
